@@ -8,7 +8,6 @@ import { SearchInput } from "@/components/search-input";
 import { JobFilters } from "@/components/job-filters";
 import { JobsPagination } from "@/components/jobs-pagination";
 import { Suspense } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
 
 interface PageProps {
   searchParams: Promise<{

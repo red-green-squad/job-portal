@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 interface JobShareButtonsProps {
   title: string;
@@ -73,11 +73,9 @@ const platforms = (url: string, text: string) => [
 ];
 
 export function JobShareButtons({ title, company }: JobShareButtonsProps) {
-  const [url, setUrl] = useState("");
-
-  useEffect(() => {
-    setUrl(window.location.href);
-  }, []);
+  const [url] = useState(() =>
+    typeof window !== "undefined" ? window.location.href : ""
+  );
 
   const text = `${title} at ${company}`;
   const buttons = platforms(url, text);
