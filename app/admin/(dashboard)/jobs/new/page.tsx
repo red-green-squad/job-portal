@@ -1,7 +1,6 @@
 import { db } from "@/db";
 import { categories } from "@/db/schema";
 import { CATEGORY_TYPES } from "@/lib/constants";
-import { eq } from "drizzle-orm";
 import { JobForm } from "@/components/admin/job-form";
 import { ArrowLeftIcon } from "lucide-react";
 import Link from "next/link";
@@ -9,9 +8,14 @@ import Link from "next/link";
 export const metadata = { title: "New Job — Admin" };
 
 export default async function NewJobPage() {
-  const allCategories = await db.select().from(categories).orderBy(categories.label);
+  const allCategories = await db
+    .select()
+    .from(categories)
+    .orderBy(categories.label);
   const roles = allCategories.filter((c) => c.type === CATEGORY_TYPES.ROLE);
-  const experiences = allCategories.filter((c) => c.type === CATEGORY_TYPES.EXPERIENCE);
+  const experiences = allCategories.filter(
+    (c) => c.type === CATEGORY_TYPES.EXPERIENCE,
+  );
 
   return (
     <div className="max-w-2xl space-y-6">

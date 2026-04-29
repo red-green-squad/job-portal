@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useSearchParams, usePathname } from "next/navigation";
 import {
   Pagination,
   PaginationContent,
@@ -16,7 +16,10 @@ interface JobsPaginationProps {
   totalPages: number;
 }
 
-export function JobsPagination({ currentPage, totalPages }: JobsPaginationProps) {
+export function JobsPagination({
+  currentPage,
+  totalPages,
+}: JobsPaginationProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -34,7 +37,11 @@ export function JobsPagination({ currentPage, totalPages }: JobsPaginationProps)
   } else {
     pages.push(1);
     if (currentPage > 3) pages.push("ellipsis");
-    for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) {
+    for (
+      let i = Math.max(2, currentPage - 1);
+      i <= Math.min(totalPages - 1, currentPage + 1);
+      i++
+    ) {
       pages.push(i);
     }
     if (currentPage < totalPages - 2) pages.push("ellipsis");
@@ -62,13 +69,17 @@ export function JobsPagination({ currentPage, totalPages }: JobsPaginationProps)
                 {p}
               </PaginationLink>
             </PaginationItem>
-          )
+          ),
         )}
         <PaginationItem>
           <PaginationNext
-            href={currentPage < totalPages ? buildHref(currentPage + 1) : undefined}
+            href={
+              currentPage < totalPages ? buildHref(currentPage + 1) : undefined
+            }
             aria-disabled={currentPage >= totalPages}
-            className={currentPage >= totalPages ? "pointer-events-none opacity-50" : ""}
+            className={
+              currentPage >= totalPages ? "pointer-events-none opacity-50" : ""
+            }
           />
         </PaginationItem>
       </PaginationContent>

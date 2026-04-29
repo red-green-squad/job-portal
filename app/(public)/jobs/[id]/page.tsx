@@ -6,7 +6,13 @@ import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { MapPinIcon, CalendarIcon, BriefcaseIcon, ArrowLeftIcon, ExternalLinkIcon } from "lucide-react";
+import {
+  MapPinIcon,
+  CalendarIcon,
+  BriefcaseIcon,
+  ArrowLeftIcon,
+  ExternalLinkIcon,
+} from "lucide-react";
 import { formatDate } from "@/lib/date-utils";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -15,10 +21,10 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
   const { id } = await params;
-  const roleAlias = alias(categories, "role");
-  const expAlias = alias(categories, "experience");
 
   const [job] = await db
     .select({ title: jobs.title, company: jobs.company })
@@ -74,17 +80,27 @@ export default async function JobDetailPage({ params }: PageProps) {
     .where(eq(jobs.id, id))
     .limit(1);
 
-  if (!job || !job.isActive || (job.lastDate !== null && new Date(job.lastDate) < today)) {
+  if (
+    !job ||
+    !job.isActive ||
+    (job.lastDate !== null && new Date(job.lastDate) < today)
+  ) {
     notFound();
   }
 
   const daysLeft = job.lastDate
-    ? Math.ceil((new Date(job.lastDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+    ? Math.ceil(
+        // eslint-disable-next-line react-hooks/purity
+        (new Date(job.lastDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24),
+      )
     : null;
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
-      <Link href="/" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+      <Link
+        href="/"
+        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+      >
         <ArrowLeftIcon className="h-4 w-4" />
         Back to listings
       </Link>
@@ -96,7 +112,16 @@ export default async function JobDetailPage({ params }: PageProps) {
             <p className="text-lg text-muted-foreground">{job.company}</p>
           </div>
           {job.applyUrl && (
-            <Button render={<a href={job.applyUrl} target="_blank" rel="noopener noreferrer" />} nativeButton={false}>
+            <Button
+              render={
+                <a
+                  href={job.applyUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                />
+              }
+              nativeButton={false}
+            >
               Apply Now
               <ExternalLinkIcon className="ml-2 h-4 w-4" />
             </Button>
@@ -105,8 +130,12 @@ export default async function JobDetailPage({ params }: PageProps) {
 
         <div className="flex flex-wrap gap-2">
           {job.role && <Badge>{job.role.label}</Badge>}
-          {job.experience && <Badge variant="secondary">{job.experience.label}</Badge>}
-          <Badge variant="outline" className="capitalize">{job.type}</Badge>
+          {job.experience && (
+            <Badge variant="secondary">{job.experience.label}</Badge>
+          )}
+          <Badge variant="outline" className="capitalize">
+            {job.type}
+          </Badge>
         </div>
 
         <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground">
@@ -126,7 +155,12 @@ export default async function JobDetailPage({ params }: PageProps) {
             <span className="flex items-center gap-1.5">
               <CalendarIcon className="h-4 w-4" />
               Apply by {formatDate(job.lastDate)}
-              {daysLeft !== null && <> ({daysLeft} day{daysLeft !== 1 ? "s" : ""} left)</>}
+              {daysLeft !== null && (
+                <>
+                  {" "}
+                  ({daysLeft} day{daysLeft !== 1 ? "s" : ""} left)
+                </>
+              )}
             </span>
           )}
         </div>
@@ -135,14 +169,26 @@ export default async function JobDetailPage({ params }: PageProps) {
       <Separator />
 
       <div className="prose prose-sm max-w-none">
-        <div className="whitespace-pre-wrap text-sm leading-relaxed">{job.description}</div>
+        <div className="whitespace-pre-wrap text-sm leading-relaxed">
+          {job.description}
+        </div>
       </div>
 
       {job.applyUrl && (
         <>
           <Separator />
           <div className="flex justify-center">
-            <Button size="lg" render={<a href={job.applyUrl} target="_blank" rel="noopener noreferrer" />} nativeButton={false}>
+            <Button
+              size="lg"
+              render={
+                <a
+                  href={job.applyUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                />
+              }
+              nativeButton={false}
+            >
               Apply for this position
               <ExternalLinkIcon className="ml-2 h-4 w-4" />
             </Button>

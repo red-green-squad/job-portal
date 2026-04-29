@@ -53,15 +53,12 @@ export function CategorySection({ title, type, items }: CategorySectionProps) {
     register,
     handleSubmit,
     reset,
-    watch,
     setValue,
     formState: { errors },
   } = useForm<CategoryFormData>({
     resolver: zodResolver(categorySchema),
     defaultValues: { type, label: "", value: "" },
   });
-
-  const labelValue = watch("label");
 
   function onLabelChange(e: React.ChangeEvent<HTMLInputElement>) {
     setValue("value", slugify(e.target.value));
@@ -110,7 +107,10 @@ export function CategorySection({ title, type, items }: CategorySectionProps) {
           <TableBody>
             {items.length === 0 && (
               <TableRow>
-                <TableCell colSpan={3} className="text-center py-6 text-muted-foreground text-sm">
+                <TableCell
+                  colSpan={3}
+                  className="text-center py-6 text-muted-foreground text-sm"
+                >
                   No {title.toLowerCase()} yet.
                 </TableCell>
               </TableRow>
@@ -118,7 +118,9 @@ export function CategorySection({ title, type, items }: CategorySectionProps) {
             {items.map((item) => (
               <TableRow key={item.id}>
                 <TableCell className="font-medium">{item.label}</TableCell>
-                <TableCell className="text-sm text-muted-foreground font-mono">{item.value}</TableCell>
+                <TableCell className="text-sm text-muted-foreground font-mono">
+                  {item.value}
+                </TableCell>
                 <TableCell>
                   <Button
                     variant="ghost"
@@ -147,7 +149,9 @@ export function CategorySection({ title, type, items }: CategorySectionProps) {
             })}
             className="w-48"
           />
-          {errors.label && <p className="text-xs text-destructive">{errors.label.message}</p>}
+          {errors.label && (
+            <p className="text-xs text-destructive">{errors.label.message}</p>
+          )}
         </div>
         <div className="space-y-1.5">
           <Label htmlFor={`${type}-value`}>Slug</Label>
@@ -157,7 +161,9 @@ export function CategorySection({ title, type, items }: CategorySectionProps) {
             {...register("value")}
             className="w-48"
           />
-          {errors.value && <p className="text-xs text-destructive">{errors.value.message}</p>}
+          {errors.value && (
+            <p className="text-xs text-destructive">{errors.value.message}</p>
+          )}
         </div>
         <Button type="submit" disabled={isPending} size="sm">
           <PlusIcon className="h-4 w-4 mr-1" />
@@ -165,7 +171,10 @@ export function CategorySection({ title, type, items }: CategorySectionProps) {
         </Button>
       </form>
 
-      <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
+      <AlertDialog
+        open={!!deleteId}
+        onOpenChange={(open) => !open && setDeleteId(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete this category?</AlertDialogTitle>
