@@ -3,6 +3,7 @@
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { Loader2Icon } from "lucide-react";
 import { deactivateAdminUser, reactivateAdminUser } from "@/actions/users";
 import { toast } from "sonner";
 
@@ -26,7 +27,8 @@ export function UserActions({ userId, isActive }: { userId: string; isActive: bo
 
   return (
     <Button variant="outline" size="sm" onClick={handle} disabled={isPending}>
-      {isActive ? "Deactivate" : "Reactivate"}
+      {isPending && <Loader2Icon className="h-4 w-4 mr-2 animate-spin" />}
+      {isPending ? "Saving..." : isActive ? "Deactivate" : "Reactivate"}
     </Button>
   );
 }

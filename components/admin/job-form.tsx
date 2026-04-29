@@ -30,6 +30,7 @@ import { format } from "@/lib/date-utils";
 import { createJob, updateJob } from "@/actions/jobs";
 import { toast } from "sonner";
 import { useTransition } from "react";
+import { Loader2Icon } from "lucide-react";
 
 interface JobFormProps {
   roles: Category[];
@@ -292,6 +293,7 @@ export function JobForm({ roles, experiences, defaultValues, jobId, onCancel }: 
             Cancel
           </Button>
           <Button type="submit" disabled={isPending}>
+            {isPending && <Loader2Icon className="h-4 w-4 mr-2 animate-spin" />}
             {isPending ? "Saving..." : jobId ? "Save changes" : "Create job"}
           </Button>
         </div>

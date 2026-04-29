@@ -40,11 +40,20 @@ export function JobFilters({ roles, experiences, selectedRole, selectedExperienc
     [router, pathname, searchParams]
   );
 
+  // Compute display labels explicitly — Base UI Select.Value may render the raw
+  // value string rather than ItemText in controlled mode, so we override it.
+  const roleLabel = selectedRole
+    ? (roles.find((r) => r.value === selectedRole)?.label ?? selectedRole)
+    : "All Roles";
+  const expLabel = selectedExperience
+    ? (experiences.find((e) => e.value === selectedExperience)?.label ?? selectedExperience)
+    : "All Experience Levels";
+
   return (
     <div className="flex gap-3 flex-wrap">
       <Select value={selectedRole ?? "all"} onValueChange={(v) => updateFilter("role", v ?? "all")}>
         <SelectTrigger className="w-44">
-          <SelectValue placeholder="All Roles" />
+          <SelectValue>{roleLabel}</SelectValue>
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All Roles</SelectItem>
@@ -58,7 +67,7 @@ export function JobFilters({ roles, experiences, selectedRole, selectedExperienc
 
       <Select value={selectedExperience ?? "all"} onValueChange={(v) => updateFilter("experience", v ?? "all")}>
         <SelectTrigger className="w-52">
-          <SelectValue placeholder="All Experience Levels" />
+          <SelectValue>{expLabel}</SelectValue>
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All Experience Levels</SelectItem>

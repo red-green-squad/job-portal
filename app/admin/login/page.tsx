@@ -1,9 +1,9 @@
 import { signIn } from "@/lib/auth";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { BriefcaseIcon } from "lucide-react";
+import { LoginSubmitButton } from "@/components/admin/login-submit-button";
 import { redirect } from "next/navigation";
 import { AuthError } from "next-auth";
 
@@ -56,9 +56,7 @@ export default async function LoginPage({ searchParams }: PageProps) {
               <Label htmlFor="password">Password</Label>
               <Input id="password" name="password" type="password" required placeholder="••••••••" />
             </div>
-            <Button type="submit" className="w-full">
-              Sign in
-            </Button>
+            <LoginSubmitButton />
           </form>
         </CardContent>
       </Card>

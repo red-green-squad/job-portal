@@ -20,7 +20,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { MoreHorizontalIcon, PencilIcon, Trash2Icon, EyeIcon, EyeOffIcon } from "lucide-react";
+import { MoreHorizontalIcon, PencilIcon, Trash2Icon, EyeIcon, EyeOffIcon, Loader2Icon } from "lucide-react";
 import { toggleJobActive, deleteJob } from "@/actions/jobs";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -60,7 +60,7 @@ export function JobRowActions({ jobId, isActive }: { jobId: string; isActive: bo
         <DropdownMenuTrigger
           render={<Button variant="ghost" size="icon" disabled={isPending} className="h-8 w-8" />}
         >
-          <MoreHorizontalIcon className="h-4 w-4" />
+          {isPending ? <Loader2Icon className="h-4 w-4 animate-spin" /> : <MoreHorizontalIcon className="h-4 w-4" />}
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem render={<Link href={`/admin?edit=${jobId}`} />}>

@@ -14,6 +14,7 @@ import {
   ExternalLinkIcon,
 } from "lucide-react";
 import { formatDate } from "@/lib/date-utils";
+import { JobShareButtons } from "@/components/job-share-buttons";
 import Link from "next/link";
 import type { Metadata } from "next";
 
@@ -195,6 +196,9 @@ export default async function JobDetailPage({ params }: PageProps) {
           </div>
         </>
       )}
+
+      <Separator />
+      <JobShareButtons title={job.title} company={job.company} />
     </div>
   );
 }

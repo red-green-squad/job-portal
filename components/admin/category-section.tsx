@@ -27,7 +27,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { PlusIcon, Trash2Icon } from "lucide-react";
+import { PlusIcon, Trash2Icon, Loader2Icon } from "lucide-react";
 import { createCategory, deleteCategory } from "@/actions/categories";
 import { toast } from "sonner";
 
@@ -166,8 +166,8 @@ export function CategorySection({ title, type, items }: CategorySectionProps) {
           )}
         </div>
         <Button type="submit" disabled={isPending} size="sm">
-          <PlusIcon className="h-4 w-4 mr-1" />
-          Add
+          {isPending ? <Loader2Icon className="h-4 w-4 mr-1 animate-spin" /> : <PlusIcon className="h-4 w-4 mr-1" />}
+          {isPending ? "Adding..." : "Add"}
         </Button>
       </form>
 
