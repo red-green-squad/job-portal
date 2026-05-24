@@ -107,78 +107,71 @@ export default async function JobDetailPage({ params }: PageProps) {
         Back to listings
       </Link>
 
-      <div className="space-y-3">
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div className="flex items-center gap-4">
-            {job.companyLogo ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={job.companyLogo}
-                alt={job.company}
-                className="h-14 w-14 rounded-lg object-cover border shrink-0"
-              />
-            ) : (
-              <div className="h-14 w-14 rounded-lg border bg-muted flex items-center justify-center text-xl font-bold text-muted-foreground shrink-0">
-                {job.company.charAt(0).toUpperCase()}
-              </div>
-            )}
-            <div>
-              <h1 className="text-2xl font-bold">{job.title}</h1>
-              <p className="text-lg text-muted-foreground">{job.company}</p>
-            </div>
+      <div className="rounded-xl border bg-muted/40 px-5 py-5 flex items-stretch gap-4">
+        {job.companyLogo ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={job.companyLogo}
+            alt={job.company}
+            className="w-1/3 rounded-lg object-cover border bg-background shadow-sm shrink-0"
+          />
+        ) : (
+          <div className="w-1/3 rounded-lg border bg-background shadow-sm flex items-center justify-center text-2xl font-bold text-muted-foreground shrink-0">
+            {job.company.charAt(0).toUpperCase()}
           </div>
-          {job.applyUrl && (
-            <Button
-              render={
-                <a
-                  href={job.applyUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                />
-              }
-              nativeButton={false}
-            >
-              Apply Now
-              <ExternalLinkIcon className="ml-2 h-4 w-4" />
-            </Button>
-          )}
-        </div>
-
-        <div className="flex flex-wrap gap-2">
-          {job.role && <Badge>{job.role.label}</Badge>}
-          {job.experience && (
-            <Badge variant="secondary">{job.experience.label}</Badge>
-          )}
-          <Badge variant="outline" className="capitalize">
-            {job.type}
-          </Badge>
-        </div>
-
-        <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground">
-          {job.location && (
-            <span className="flex items-center gap-1.5">
-              <MapPinIcon className="h-4 w-4" />
-              {job.location}
-            </span>
-          )}
-          {job.salary && (
-            <span className="flex items-center gap-1.5">
-              <BriefcaseIcon className="h-4 w-4" />
-              {job.salary}
-            </span>
-          )}
-          {job.lastDate && (
-            <span className="flex items-center gap-1.5">
-              <CalendarIcon className="h-4 w-4" />
-              Apply by {formatDate(job.lastDate)}
-              {daysLeft !== null && (
-                <>
-                  {" "}
-                  ({daysLeft} day{daysLeft !== 1 ? "s" : ""} left)
-                </>
-              )}
-            </span>
-          )}
+        )}
+        <div className="w-2/3 min-w-0 space-y-2">
+          <div className="flex items-start justify-between gap-3 flex-wrap">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">{job.company}</p>
+              <h1 className="text-xl font-bold leading-snug">{job.title}</h1>
+            </div>
+            {job.applyUrl && (
+              <Button
+                render={
+                  <a
+                    href={job.applyUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  />
+                }
+                nativeButton={false}
+              >
+                Apply Now
+                <ExternalLinkIcon className="ml-2 h-4 w-4" />
+              </Button>
+            )}
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {job.role && <Badge>{job.role.label}</Badge>}
+            {job.experience && (
+              <Badge variant="secondary">{job.experience.label}</Badge>
+            )}
+            <Badge variant="outline" className="capitalize">{job.type}</Badge>
+          </div>
+          <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
+            {job.location && (
+              <span className="flex items-center gap-1.5">
+                <MapPinIcon className="h-3.5 w-3.5" />
+                {job.location}
+              </span>
+            )}
+            {job.salary && (
+              <span className="flex items-center gap-1.5">
+                <BriefcaseIcon className="h-3.5 w-3.5" />
+                {job.salary}
+              </span>
+            )}
+            {job.lastDate && (
+              <span className="flex items-center gap-1.5">
+                <CalendarIcon className="h-3.5 w-3.5" />
+                Apply by {formatDate(job.lastDate)}
+                {daysLeft !== null && (
+                  <> ({daysLeft} day{daysLeft !== 1 ? "s" : ""} left)</>
+                )}
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
