@@ -30,7 +30,8 @@ import { format } from "@/lib/date-utils";
 import { createJob, updateJob } from "@/actions/jobs";
 import { toast } from "sonner";
 import { useTransition } from "react";
-import { Loader2Icon } from "lucide-react";
+import { Loader2Icon, UploadIcon, XIcon } from "lucide-react";
+import { useRef } from "react";
 
 interface JobFormProps {
   roles: Category[];
@@ -42,6 +43,7 @@ interface JobFormProps {
 
 export function JobForm({ roles, experiences, defaultValues, jobId, onCancel }: JobFormProps) {
   const [isPending, startTransition] = useTransition();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<JobFormData>({
     // Cast needed due to Zod v4 / @hookform/resolvers type inference gap on z.date()
@@ -58,6 +60,7 @@ export function JobForm({ roles, experiences, defaultValues, jobId, onCancel }: 
       applyUrl: defaultValues?.applyUrl ?? "",
       lastDate: defaultValues?.lastDate ? new Date(defaultValues.lastDate) : undefined,
       isActive: defaultValues?.isActive ?? true,
+      companyLogo: defaultValues?.companyLogo ?? undefined,
     },
   });
 
@@ -102,6 +105,76 @@ export function JobForm({ roles, experiences, defaultValues, jobId, onCancel }: 
             )}
           />
         </div>
+
+        <FormField
+          control={form.control}
+          name="companyLogo"
+          render={({ field }: { field: any }) => (
+            <FormItem>
+              <FormLabel>Company Logo</FormLabel>
+              <FormControl>
+                <div className="flex items-center gap-4">
+                  {field.value ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={field.value}
+                      alt="Company logo preview"
+                      className="h-16 w-16 rounded-lg object-cover border"
+                    />
+                  ) : (
+                    <div className="h-16 w-16 rounded-lg border bg-muted flex items-center justify-center text-muted-foreground">
+                      <UploadIcon className="h-6 w-6" />
+                    </div>
+                  )}
+                  <div className="flex flex-col gap-2">
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        if (file.size > 500 * 1024) {
+                          toast.error("Image must be smaller than 500KB");
+                          e.target.value = "";
+                          return;
+                        }
+                        const reader = new FileReader();
+                        reader.onload = () => field.onChange(reader.result as string);
+                        reader.readAsDataURL(file);
+                      }}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <UploadIcon className="h-4 w-4 mr-2" />
+                      {field.value ? "Change logo" : "Upload logo"}
+                    </Button>
+                    {field.value && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          field.onChange(undefined);
+                          if (fileInputRef.current) fileInputRef.current.value = "";
+                        }}
+                      >
+                        <XIcon className="h-4 w-4 mr-2" />
+                        Remove
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <FormField
           control={form.control}

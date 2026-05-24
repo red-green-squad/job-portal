@@ -12,6 +12,7 @@ export const jobSchema = z.object({
   applyUrl: z.string().url("Must be a valid URL").optional().or(z.literal("")),
   lastDate: z.date().optional(),
   isActive: z.boolean().default(true),
+  companyLogo: z.string().optional(),
 });
 
 export const categorySchema = z.object({

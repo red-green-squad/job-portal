@@ -20,22 +20,38 @@ export function JobCard({ job }: { job: JobWithRelations }) {
     <Link href={`/jobs/${job.id}`}>
       <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
         <CardHeader className="pb-2">
-          <div className="flex items-start justify-between gap-2">
-            <CardTitle className="text-base leading-snug">
-              {job.title}
-            </CardTitle>
-            {daysLeft !== null && (
-              <Badge
-                variant={daysLeft <= 3 ? "destructive" : "secondary"}
-                className="shrink-0 text-xs"
-              >
-                {daysLeft <= 0 ? "Closing today" : `${daysLeft}d left`}
-              </Badge>
+          <div className="flex items-start gap-3">
+            {job.companyLogo ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={job.companyLogo}
+                alt={job.company}
+                className="h-10 w-10 rounded-md object-cover border shrink-0 mt-0.5"
+              />
+            ) : (
+              <div className="h-10 w-10 rounded-md border bg-muted flex items-center justify-center text-sm font-bold text-muted-foreground shrink-0 mt-0.5">
+                {job.company.charAt(0).toUpperCase()}
+              </div>
             )}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-start justify-between gap-2">
+                <CardTitle className="text-base leading-snug">
+                  {job.title}
+                </CardTitle>
+                {daysLeft !== null && (
+                  <Badge
+                    variant={daysLeft <= 3 ? "destructive" : "secondary"}
+                    className="shrink-0 text-xs"
+                  >
+                    {daysLeft <= 0 ? "Closing today" : `${daysLeft}d left`}
+                  </Badge>
+                )}
+              </div>
+              <p className="text-sm text-muted-foreground font-medium">
+                {job.company}
+              </p>
+            </div>
           </div>
-          <p className="text-sm text-muted-foreground font-medium">
-            {job.company}
-          </p>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex flex-wrap gap-2">

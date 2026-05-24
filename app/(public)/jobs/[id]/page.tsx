@@ -50,6 +50,7 @@ export default async function JobDetailPage({ params }: PageProps) {
       title: jobs.title,
       company: jobs.company,
       description: jobs.description,
+      companyLogo: jobs.companyLogo,
       location: jobs.location,
       salary: jobs.salary,
       type: jobs.type,
@@ -108,9 +109,23 @@ export default async function JobDetailPage({ params }: PageProps) {
 
       <div className="space-y-3">
         <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div>
-            <h1 className="text-2xl font-bold">{job.title}</h1>
-            <p className="text-lg text-muted-foreground">{job.company}</p>
+          <div className="flex items-center gap-4">
+            {job.companyLogo ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={job.companyLogo}
+                alt={job.company}
+                className="h-14 w-14 rounded-lg object-cover border shrink-0"
+              />
+            ) : (
+              <div className="h-14 w-14 rounded-lg border bg-muted flex items-center justify-center text-xl font-bold text-muted-foreground shrink-0">
+                {job.company.charAt(0).toUpperCase()}
+              </div>
+            )}
+            <div>
+              <h1 className="text-2xl font-bold">{job.title}</h1>
+              <p className="text-lg text-muted-foreground">{job.company}</p>
+            </div>
           </div>
           {job.applyUrl && (
             <Button

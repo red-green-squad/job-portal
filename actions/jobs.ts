@@ -15,7 +15,7 @@ export async function createJob(data: unknown): Promise<ActionResult> {
     return { error: parsed.error.issues[0].message };
   }
 
-  const { applyUrl, ...rest } = parsed.data;
+  const { applyUrl, companyLogo, ...rest } = parsed.data;
 
   await db.insert(jobs).values({
     ...rest,
@@ -23,6 +23,7 @@ export async function createJob(data: unknown): Promise<ActionResult> {
     experienceId: rest.experienceId ?? null,
     applyUrl: applyUrl || null,
     lastDate: rest.lastDate ?? null,
+    companyLogo: companyLogo || null,
   });
 
   revalidatePath("/");
@@ -36,7 +37,7 @@ export async function updateJob(id: string, data: unknown): Promise<ActionResult
     return { error: parsed.error.issues[0].message };
   }
 
-  const { applyUrl, ...rest } = parsed.data;
+  const { applyUrl, companyLogo, ...rest } = parsed.data;
 
   await db
     .update(jobs)
@@ -46,6 +47,7 @@ export async function updateJob(id: string, data: unknown): Promise<ActionResult
       experienceId: rest.experienceId ?? null,
       applyUrl: applyUrl || null,
       lastDate: rest.lastDate ?? null,
+      companyLogo: companyLogo || null,
       updatedAt: new Date(),
     })
     .where(eq(jobs.id, id));

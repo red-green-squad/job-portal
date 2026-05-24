@@ -1,6 +1,6 @@
 import { db } from "@/db";
 import { jobs, categories } from "@/db/schema";
-import { and, eq, gte, ilike, isNull, or, sql, count } from "drizzle-orm";
+import { and, desc, eq, gte, ilike, isNull, or, sql, count } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { PAGE_SIZE, CATEGORY_TYPES } from "@/lib/constants";
 import { JobCard } from "@/components/job-card";
@@ -84,6 +84,7 @@ export default async function HomePage({ searchParams }: PageProps) {
       type: jobs.type,
       applyUrl: jobs.applyUrl,
       lastDate: jobs.lastDate,
+      companyLogo: jobs.companyLogo,
       isActive: jobs.isActive,
       createdAt: jobs.createdAt,
       updatedAt: jobs.updatedAt,
@@ -106,7 +107,7 @@ export default async function HomePage({ searchParams }: PageProps) {
     .leftJoin(roleAlias, eq(jobs.roleId, roleAlias.id))
     .leftJoin(expAlias, eq(jobs.experienceId, expAlias.id))
     .where(where)
-    .orderBy(jobs.lastDate)
+    .orderBy(desc(jobs.createdAt))
     .limit(PAGE_SIZE)
     .offset(offset);
 

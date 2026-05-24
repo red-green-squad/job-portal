@@ -50,6 +50,7 @@ export const jobs = pgTable(
     type: text("type").notNull(), // 'full-time' | 'part-time' | 'contract' | 'remote'
     applyUrl: text("apply_url"),
     lastDate: timestamp("last_date", { mode: "date" }),
+    companyLogo: text("company_logo"),
     isActive: boolean("is_active").default(true).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
