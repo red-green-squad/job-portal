@@ -7,25 +7,36 @@ import { PAGE_SIZE, CATEGORY_TYPES } from "./constants";
 
 const DAY = 60 * 60 * 24;
 
-export async function getCategories() {
+// ─── getCategories ────────────────────────────────────────────────────────────
+
+async function fetchCategories() {
   "use cache";
   cacheLife({ stale: DAY, revalidate: DAY, expire: DAY * 7 });
   cacheTag("categories");
-  console.log("[cache miss] getCategories");
+  console.log("[cache:miss] getCategories");
   return db.select().from(categories).orderBy(categories.label);
 }
 
-export async function getJobsPage(filters: {
+export async function getCategories() {
+  console.log("[cache:call] getCategories");
+  return fetchCategories();
+}
+
+// ─── getJobsPage ─────────────────────────────────────────────────────────────
+
+type JobsPageFilters = {
   search?: string;
   role?: string;
   experience?: string;
   page?: string;
-  today: string; // YYYY-MM-DD from caller — keeps new Date() outside 'use cache'
-}) {
+  today: string; // YYYY-MM-DD — caller provides this so new Date() stays outside 'use cache'
+};
+
+async function fetchJobsPage(filters: JobsPageFilters) {
   "use cache";
   cacheLife({ stale: DAY, revalidate: DAY, expire: DAY * 7 });
   cacheTag("jobs");
-  console.log(`[cache miss] getJobsPage -- ${JSON.stringify(filters)}`);
+  console.log(`[cache:miss] getJobsPage filters=${JSON.stringify(filters)}`);
 
   const { search, role, experience, page } = filters;
   const currentPage = Math.max(1, parseInt(page ?? "1", 10));
@@ -118,12 +129,19 @@ export async function getJobsPage(filters: {
   return { jobRows, total, totalPages, currentPage };
 }
 
-export async function getJobById(id: string) {
+export async function getJobsPage(filters: JobsPageFilters) {
+  console.log(`[cache:call] getJobsPage filters=${JSON.stringify(filters)}`);
+  return fetchJobsPage(filters);
+}
+
+// ─── getJobById ───────────────────────────────────────────────────────────────
+
+async function fetchJobById(id: string) {
   "use cache";
   cacheLife({ stale: DAY, revalidate: DAY, expire: DAY * 7 });
   cacheTag("jobs");
   cacheTag(`job-${id}`);
-  console.log(`[cache miss] getJobById -- ${id}`);
+  console.log(`[cache:miss] getJobById id=${id}`);
 
   const roleAlias = alias(categories, "role");
   const expAlias = alias(categories, "experience");
@@ -168,4 +186,9 @@ export async function getJobById(id: string) {
 
   if (!job || !job.isActive) return null;
   return job;
+}
+
+export async function getJobById(id: string) {
+  console.log(`[cache:call] getJobById id=${id}`);
+  return fetchJobById(id);
 }

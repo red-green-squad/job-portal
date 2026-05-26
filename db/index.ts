@@ -11,7 +11,8 @@ export const db = drizzle(client, {
   schema,
   logger: {
     logQuery(query, params) {
-      console.log(`[db] ${query}${params.length ? ` -- ${JSON.stringify(params)}` : ""}`);
+      const table = query.match(/from "(\w+)"/i)?.[1] ?? "?";
+      console.log(`[db:query] table=${table} params=${JSON.stringify(params)}`);
     },
   },
 });
