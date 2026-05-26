@@ -1,5 +1,6 @@
 import { getJobById } from "@/lib/queries";
 import { notFound } from "next/navigation";
+import { connection } from "next/server";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -27,6 +28,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function JobDetailPage({ params }: PageProps) {
+  await connection();
   const { id } = await params;
   const today = new Date();
 

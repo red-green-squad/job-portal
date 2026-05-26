@@ -16,7 +16,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
       <footer className="border-t py-8">
         <div className="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Job Board. All rights reserved.
+            © 2026 Job Board. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
             <a
