@@ -1,6 +1,6 @@
 import { db } from "@/db";
 import { jobs, categories } from "@/db/schema";
-import { alias } from "drizzle-orm/pg-core";
+import { alias } from "drizzle-orm/sqlite-core";
 import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";

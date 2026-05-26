@@ -1,59 +1,57 @@
 import {
-  pgTable,
+  sqliteTable,
   text,
-  timestamp,
-  boolean,
-  uuid,
-  unique,
+  integer,
+  uniqueIndex,
   index,
-} from "drizzle-orm/pg-core";
+} from "drizzle-orm/sqlite-core";
 
-export const adminUsers = pgTable("admin_users", {
-  id: uuid("id").defaultRandom().primaryKey(),
+export const adminUsers = sqliteTable("admin_users", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
   email: text("email").notNull().unique(),
   name: text("name").notNull(),
   passwordHash: text("password_hash").notNull(),
-  isActive: boolean("is_active").default(true).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  isActive: integer("is_active", { mode: "boolean" }).default(true).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
-export const categories = pgTable(
+export const categories = sqliteTable(
   "categories",
   {
-    id: uuid("id").defaultRandom().primaryKey(),
+    id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
     type: text("type").notNull(), // 'role' | 'experience'
     label: text("label").notNull(),
     value: text("value").notNull(), // slug
-    createdAt: timestamp("created_at").defaultNow().notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
   },
   (t) => [
-    unique("categories_type_value_unique").on(t.type, t.value),
+    uniqueIndex("categories_type_value_unique").on(t.type, t.value),
     index("categories_type_idx").on(t.type),
   ],
 );
 
-export const jobs = pgTable(
+export const jobs = sqliteTable(
   "jobs",
   {
-    id: uuid("id").defaultRandom().primaryKey(),
+    id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
     title: text("title").notNull(),
     company: text("company").notNull(),
     description: text("description").notNull(),
-    roleId: uuid("role_id").references(() => categories.id, {
+    roleId: text("role_id").references(() => categories.id, {
       onDelete: "set null",
     }),
-    experienceId: uuid("experience_id").references(() => categories.id, {
+    experienceId: text("experience_id").references(() => categories.id, {
       onDelete: "set null",
     }),
     location: text("location"),
     salary: text("salary"),
     type: text("type").notNull(), // 'full-time' | 'part-time' | 'contract' | 'remote'
     applyUrl: text("apply_url"),
-    lastDate: timestamp("last_date", { mode: "date" }),
+    lastDate: integer("last_date", { mode: "timestamp" }),
     companyLogo: text("company_logo"),
-    isActive: boolean("is_active").default(true).notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+    isActive: integer("is_active", { mode: "boolean" }).default(true).notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
+    updatedAt: integer("updated_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
   },
   (t) => [
     index("jobs_role_id_idx").on(t.roleId),

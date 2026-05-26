@@ -1,4 +1,4 @@
-export const PAGE_SIZE = 10;
+export const PAGE_SIZE = 25;
 
 export const JOB_TYPES = [
   { label: "Full-time", value: "full-time" },

@@ -1,7 +1,7 @@
 import { db } from "@/db";
 import { jobs, categories } from "@/db/schema";
-import { and, desc, eq, gte, ilike, isNull, or, sql, count } from "drizzle-orm";
-import { alias } from "drizzle-orm/pg-core";
+import { and, desc, eq, gte, like, isNull, or, sql, count } from "drizzle-orm";
+import { alias } from "drizzle-orm/sqlite-core";
 import { PAGE_SIZE, CATEGORY_TYPES } from "@/lib/constants";
 import { JobCard } from "@/components/job-card";
 import { SearchInput } from "@/components/search-input";
@@ -34,9 +34,9 @@ export default async function HomePage({ searchParams }: PageProps) {
   if (search) {
     whereConditions.push(
       or(
-        ilike(jobs.title, `%${search}%`),
-        ilike(jobs.company, `%${search}%`),
-        ilike(jobs.description, `%${search}%`)
+        like(jobs.title, `%${search}%`),
+        like(jobs.company, `%${search}%`),
+        like(jobs.description, `%${search}%`)
       )!
     );
   }
