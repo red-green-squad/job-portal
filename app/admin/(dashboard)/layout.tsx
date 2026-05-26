@@ -5,8 +5,9 @@ import { BriefcaseIcon, LayoutDashboardIcon, TagsIcon, UsersIcon, LogOutIcon } f
 import { Button } from "@/components/ui/button";
 import { signOut } from "@/lib/auth";
 import { NavLink } from "@/components/admin/nav-link";
+import { Suspense } from "react";
 
-export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+async function AdminDashboard({ children }: { children: React.ReactNode }) {
   const session = await auth();
   if (!session) redirect("/admin/login");
 
@@ -28,7 +29,6 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             Users
           </NavLink>
         </nav>
-
         <div className="p-3 border-t">
           <form
             action={async () => {
@@ -57,5 +57,13 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <main className="flex-1 p-6 overflow-auto">{children}</main>
       </div>
     </div>
+  );
+}
+
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <Suspense fallback={<div className="min-h-screen" />}>
+      <AdminDashboard>{children}</AdminDashboard>
+    </Suspense>
   );
 }

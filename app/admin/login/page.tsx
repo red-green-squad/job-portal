@@ -6,14 +6,12 @@ import { BriefcaseIcon } from "lucide-react";
 import { LoginSubmitButton } from "@/components/admin/login-submit-button";
 import { redirect } from "next/navigation";
 import { AuthError } from "next-auth";
+import { LoginError } from "@/components/admin/login-error";
+import { Suspense } from "react";
 
-interface PageProps {
-  searchParams: Promise<{ error?: string }>;
-}
+export const metadata = { title: "Admin Sign In — Job Board" };
 
-export default async function LoginPage({ searchParams }: PageProps) {
-  const { error } = await searchParams;
-
+export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4">
       <Card className="w-full max-w-sm">
@@ -43,11 +41,9 @@ export default async function LoginPage({ searchParams }: PageProps) {
             }}
             className="space-y-4"
           >
-            {error && (
-              <p className="text-sm text-destructive bg-destructive/10 px-3 py-2 rounded-md">
-                {decodeURIComponent(error)}
-              </p>
-            )}
+            <Suspense fallback={null}>
+              <LoginError />
+            </Suspense>
             <div className="space-y-1.5">
               <Label htmlFor="email">Email</Label>
               <Input id="email" name="email" type="email" required placeholder="admin@example.com" />
@@ -63,5 +59,3 @@ export default async function LoginPage({ searchParams }: PageProps) {
     </div>
   );
 }
-
-export const metadata = { title: "Admin Sign In — Job Board" };
