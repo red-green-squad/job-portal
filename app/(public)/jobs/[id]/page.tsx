@@ -17,8 +17,6 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
 
-export const unstable_instant = { prefetch: "static" };
-
 interface PageProps {
   params: Promise<{ id: string }>;
 }
