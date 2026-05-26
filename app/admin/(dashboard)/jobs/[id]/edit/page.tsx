@@ -6,6 +6,7 @@ import { CATEGORY_TYPES } from "@/lib/constants";
 import { JobForm } from "@/components/admin/job-form";
 import { ArrowLeftIcon } from "lucide-react";
 import Link from "next/link";
+import { connection } from "next/server";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -14,6 +15,7 @@ interface PageProps {
 export const metadata = { title: "Edit Job — Admin" };
 
 export default async function EditJobPage({ params }: PageProps) {
+  await connection();
   const { id } = await params;
 
   const [job] = await db.select().from(jobs).where(eq(jobs.id, id)).limit(1);

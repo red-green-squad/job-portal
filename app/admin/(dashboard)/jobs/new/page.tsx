@@ -4,10 +4,12 @@ import { CATEGORY_TYPES } from "@/lib/constants";
 import { JobForm } from "@/components/admin/job-form";
 import { ArrowLeftIcon } from "lucide-react";
 import Link from "next/link";
+import { connection } from "next/server";
 
 export const metadata = { title: "New Job — Admin" };
 
 export default async function NewJobPage() {
+  await connection();
   const allCategories = await db
     .select()
     .from(categories)

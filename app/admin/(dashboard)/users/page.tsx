@@ -1,6 +1,7 @@
 import { db } from "@/db";
 import { adminUsers } from "@/db/schema";
 import { desc } from "drizzle-orm";
+import { connection } from "next/server";
 import {
   Table,
   TableBody,
@@ -17,6 +18,7 @@ import { formatDate } from "@/lib/date-utils";
 export const metadata = { title: "Admin Users — Admin" };
 
 export default async function AdminUsersPage() {
+  await connection();
   const users = await db
     .select({
       id: adminUsers.id,
