@@ -1,3 +1,4 @@
+import React from "react";
 import { getJobById } from "@/lib/queries";
 import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +18,71 @@ import type { Metadata } from "next";
 
 interface PageProps {
   params: Promise<{ id: string }>;
+}
+
+function parseDescription(text: string) {
+  const lines = text.split("\n");
+  const elements: React.ReactNode[] = [];
+  let sectionKey = 0;
+
+  for (let i = 0; i < lines.length; i++) {
+    const raw = lines[i];
+    const trimmed = raw.trim();
+
+    if (!trimmed) {
+      continue;
+    }
+
+    // Section heading: line that ends with ":" and isn't too long
+    if (/^[A-Z][^:]{0,60}:\s*$/.test(trimmed)) {
+      elements.push(
+        <h3
+          key={sectionKey++}
+          className="text-base font-semibold text-foreground mt-6 first:mt-0 pb-1 border-b"
+        >
+          {trimmed.replace(/:$/, "")}
+        </h3>
+      );
+      continue;
+    }
+
+    // Bullet item: starts with -, *, •, or digits like "1."
+    if (/^[-*•]|^\d+\./.test(trimmed)) {
+      const bulletLines: string[] = [];
+      let j = i;
+      while (j < lines.length) {
+        const t = lines[j].trim();
+        if (!t) { j++; break; }
+        if (/^[-*•]|^\d+\./.test(t) || bulletLines.length === 0) {
+          bulletLines.push(t.replace(/^[-*•]\s*/, "").replace(/^\d+\.\s*/, ""));
+          j++;
+        } else {
+          break;
+        }
+      }
+      elements.push(
+        <ul key={sectionKey++} className="space-y-1.5 pl-1">
+          {bulletLines.map((item, idx) => (
+            <li key={idx} className="flex gap-2 text-muted-foreground">
+              <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-primary/60 shrink-0" />
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
+      );
+      i = j - 1;
+      continue;
+    }
+
+    // Regular paragraph
+    elements.push(
+      <p key={sectionKey++} className="text-muted-foreground">
+        {trimmed}
+      </p>
+    );
+  }
+
+  return elements;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -113,10 +179,8 @@ export default async function JobDetailPage({ params }: PageProps) {
 
       <Separator />
 
-      <div className="prose prose-sm max-w-none">
-        <div className="whitespace-pre-wrap text-sm leading-relaxed">
-          {job.description}
-        </div>
+      <div className="space-y-4 text-sm leading-relaxed">
+        {parseDescription(job.description)}
       </div>
 
       {job.applyUrl && (
