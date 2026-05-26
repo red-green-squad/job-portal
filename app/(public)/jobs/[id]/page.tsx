@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import React from "react";
 import { getJobById } from "@/lib/queries";
 import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
@@ -20,7 +20,6 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-// Static — no DB call needed for the title tag
 export const metadata: Metadata = { title: "Job Details — Job Board" };
 
 function parseDescription(text: string) {
@@ -30,10 +29,9 @@ function parseDescription(text: string) {
 
   for (let i = 0; i < lines.length; i++) {
     const trimmed = lines[i].trim();
-
     if (!trimmed) continue;
 
-    // Key-value pair: "Label : Value" or "Label: Value" with content after the colon
+    // "Label : Value" or "Label: Value" — bold + underlined
     const kvMatch = trimmed.match(/^([A-Za-z][^:]{1,40}?)\s*:\s*(.+)$/);
     if (kvMatch) {
       elements.push(
@@ -44,7 +42,7 @@ function parseDescription(text: string) {
       continue;
     }
 
-    // Section heading: line that ends with ":" and has no content after it
+    // Section heading: ends with ":" and nothing after
     if (/^[A-Z][^:]{0,60}:\s*$/.test(trimmed)) {
       elements.push(
         <h3
@@ -57,6 +55,7 @@ function parseDescription(text: string) {
       continue;
     }
 
+    // Bullet list
     if (/^[-*•]|^\d+\./.test(trimmed)) {
       const bulletLines: string[] = [];
       let j = i;
@@ -94,11 +93,15 @@ function parseDescription(text: string) {
   return elements;
 }
 
-async function JobDetailContent({ id }: { id: string }) {
+export default async function JobDetailPage({ params }: PageProps) {
+  const { id } = await params;
+
+  // getJobById has 'use cache' — DB is called only on first visit or after
+  // admin mutation invalidates via updateTag("job-${id}")
   const job = await getJobById(id);
   if (!job) notFound();
 
-  // Date logic lives here (render time), not inside the 'use cache' function
+  // Date logic at render time (not inside the cached function)
   const now = new Date();
   if (job.lastDate !== null && new Date(job.lastDate) < now) notFound();
   const daysLeft = job.lastDate
@@ -106,7 +109,15 @@ async function JobDetailContent({ id }: { id: string }) {
     : null;
 
   return (
-    <>
+    <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
+      <Link
+        href="/"
+        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+      >
+        <ArrowLeftIcon className="h-4 w-4" />
+        Back to listings
+      </Link>
+
       <div className="rounded-xl border bg-muted/40 px-5 py-5 flex items-stretch gap-4">
         {job.companyLogo ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -197,47 +208,6 @@ async function JobDetailContent({ id }: { id: string }) {
 
       <Separator />
       <JobShareButtons title={job.title} company={job.company} />
-    </>
-  );
-}
-
-function JobDetailSkeleton() {
-  return (
-    <div className="animate-pulse space-y-4">
-      <div className="rounded-xl border bg-muted/40 px-5 py-5 flex gap-4">
-        <div className="w-1/3 rounded-lg bg-muted h-32 shrink-0" />
-        <div className="w-2/3 space-y-3">
-          <div className="h-4 bg-muted rounded w-1/3" />
-          <div className="h-6 bg-muted rounded w-2/3" />
-          <div className="flex gap-2">
-            <div className="h-5 bg-muted rounded w-16" />
-            <div className="h-5 bg-muted rounded w-20" />
-          </div>
-        </div>
-      </div>
-      <div className="space-y-2">
-        <div className="h-4 bg-muted rounded" />
-        <div className="h-4 bg-muted rounded w-5/6" />
-        <div className="h-4 bg-muted rounded w-4/6" />
-      </div>
-    </div>
-  );
-}
-
-export default function JobDetailPage({ params }: PageProps) {
-  return (
-    <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
-      <Link
-        href="/"
-        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeftIcon className="h-4 w-4" />
-        Back to listings
-      </Link>
-
-      <Suspense fallback={<JobDetailSkeleton />}>
-        {params.then(({ id }) => <JobDetailContent id={id} />)}
-      </Suspense>
     </div>
   );
 }

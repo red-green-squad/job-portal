@@ -5,9 +5,11 @@ import { alias } from "drizzle-orm/sqlite-core";
 import { cacheLife, cacheTag } from "next/cache";
 import { PAGE_SIZE, CATEGORY_TYPES } from "./constants";
 
+const DAY = 60 * 60 * 24;
+
 export async function getCategories() {
   "use cache";
-  cacheLife("hours");
+  cacheLife({ stale: DAY, revalidate: DAY, expire: DAY * 7 });
   cacheTag("categories");
   console.log("[cache miss] getCategories");
   return db.select().from(categories).orderBy(categories.label);
@@ -18,10 +20,10 @@ export async function getJobsPage(filters: {
   role?: string;
   experience?: string;
   page?: string;
-  today: string; // YYYY-MM-DD — provided by the caller so new Date() stays outside 'use cache'
+  today: string; // YYYY-MM-DD from caller — keeps new Date() outside 'use cache'
 }) {
   "use cache";
-  cacheLife("hours");
+  cacheLife({ stale: DAY, revalidate: DAY, expire: DAY * 7 });
   cacheTag("jobs");
   console.log(`[cache miss] getJobsPage -- ${JSON.stringify(filters)}`);
 
@@ -118,7 +120,7 @@ export async function getJobsPage(filters: {
 
 export async function getJobById(id: string) {
   "use cache";
-  cacheLife("max"); // near-indefinite; invalidated explicitly via updateTag on mutations
+  cacheLife({ stale: DAY, revalidate: DAY, expire: DAY * 7 });
   cacheTag("jobs");
   cacheTag(`job-${id}`);
   console.log(`[cache miss] getJobById -- ${id}`);
@@ -165,5 +167,5 @@ export async function getJobById(id: string) {
     .limit(1);
 
   if (!job || !job.isActive) return null;
-  return job; // date-sensitive checks (expiry, daysLeft) stay outside 'use cache'
+  return job;
 }
