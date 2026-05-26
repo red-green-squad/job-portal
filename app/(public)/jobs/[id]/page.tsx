@@ -1,6 +1,5 @@
 import { getJobById } from "@/lib/queries";
 import { notFound } from "next/navigation";
-import { connection } from "next/server";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -28,26 +27,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function JobDetailPage({ params }: PageProps) {
-  await connection();
   const { id } = await params;
-  const today = new Date();
-
   const job = await getJobById(id);
+  if (!job) notFound();
 
-  if (
-    !job ||
-    !job.isActive ||
-    (job.lastDate !== null && new Date(job.lastDate) < today)
-  ) {
-    notFound();
-  }
-
-  const daysLeft = job.lastDate
-    ? Math.ceil(
-        // eslint-disable-next-line react-hooks/purity
-        (new Date(job.lastDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24),
-      )
-    : null;
+  const { daysLeft } = job;
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">

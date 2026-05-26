@@ -163,5 +163,14 @@ export async function getJobById(id: string) {
     .where(eq(jobs.id, id))
     .limit(1);
 
-  return job ?? null;
+  if (!job || !job.isActive) return null;
+
+  const now = new Date();
+  if (job.lastDate !== null && new Date(job.lastDate) < now) return null;
+
+  const daysLeft = job.lastDate
+    ? Math.ceil((new Date(job.lastDate).getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+    : null;
+
+  return { ...job, daysLeft };
 }
