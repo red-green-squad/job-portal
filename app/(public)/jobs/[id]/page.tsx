@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { getJobById } from "@/lib/queries";
 import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
@@ -15,9 +15,30 @@ import { formatDate } from "@/lib/date-utils";
 import { JobShareButtons } from "@/components/job-share-buttons";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { cacheLife, cacheTag } from "next/cache";
+
+export const unstable_instant = { prefetch: "static" };
 
 interface PageProps {
   params: Promise<{ id: string }>;
+}
+
+// Separate cached helper so generateMetadata doesn't re-run getJobById uncached
+async function getJobMeta(id: string) {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("jobs");
+  cacheTag(`job-${id}`);
+  const job = await getJobById(id);
+  if (!job) return null;
+  return { title: job.title, company: job.company };
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { id } = await params;
+  const meta = await getJobMeta(id);
+  if (!meta) return { title: "Job Not Found" };
+  return { title: `${meta.title} at ${meta.company} — Job Board` };
 }
 
 function parseDescription(text: string) {
@@ -26,14 +47,10 @@ function parseDescription(text: string) {
   let sectionKey = 0;
 
   for (let i = 0; i < lines.length; i++) {
-    const raw = lines[i];
-    const trimmed = raw.trim();
+    const trimmed = lines[i].trim();
 
-    if (!trimmed) {
-      continue;
-    }
+    if (!trimmed) continue;
 
-    // Section heading: line that ends with ":" and isn't too long
     if (/^[A-Z][^:]{0,60}:\s*$/.test(trimmed)) {
       elements.push(
         <h3
@@ -46,7 +63,6 @@ function parseDescription(text: string) {
       continue;
     }
 
-    // Bullet item: starts with -, *, •, or digits like "1."
     if (/^[-*•]|^\d+\./.test(trimmed)) {
       const bulletLines: string[] = [];
       let j = i;
@@ -74,7 +90,6 @@ function parseDescription(text: string) {
       continue;
     }
 
-    // Regular paragraph
     elements.push(
       <p key={sectionKey++} className="text-muted-foreground">
         {trimmed}
@@ -85,30 +100,20 @@ function parseDescription(text: string) {
   return elements;
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { id } = await params;
-  const job = await getJobById(id);
-  if (!job) return { title: "Job Not Found" };
-  return { title: `${job.title} at ${job.company} — Job Board` };
-}
+// Cached per job ID — output included in the static shell for instant client navigation
+async function JobDetailContent({ id }: { id: string }) {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("jobs");
+  cacheTag(`job-${id}`);
 
-export default async function JobDetailPage({ params }: PageProps) {
-  const { id } = await params;
   const job = await getJobById(id);
   if (!job) notFound();
 
   const { daysLeft } = job;
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
-      <Link
-        href="/"
-        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeftIcon className="h-4 w-4" />
-        Back to listings
-      </Link>
-
+    <>
       <div className="rounded-xl border bg-muted/40 px-5 py-5 flex items-stretch gap-4">
         {job.companyLogo ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -131,11 +136,7 @@ export default async function JobDetailPage({ params }: PageProps) {
             {job.applyUrl && (
               <Button
                 render={
-                  <a
-                    href={job.applyUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  />
+                  <a href={job.applyUrl} target="_blank" rel="noopener noreferrer" />
                 }
                 nativeButton={false}
               >
@@ -190,11 +191,7 @@ export default async function JobDetailPage({ params }: PageProps) {
             <Button
               size="lg"
               render={
-                <a
-                  href={job.applyUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                />
+                <a href={job.applyUrl} target="_blank" rel="noopener noreferrer" />
               }
               nativeButton={false}
             >
@@ -207,6 +204,47 @@ export default async function JobDetailPage({ params }: PageProps) {
 
       <Separator />
       <JobShareButtons title={job.title} company={job.company} />
+    </>
+  );
+}
+
+function JobDetailSkeleton() {
+  return (
+    <div className="animate-pulse space-y-4">
+      <div className="rounded-xl border bg-muted/40 px-5 py-5 flex gap-4">
+        <div className="w-1/3 rounded-lg bg-muted h-32 shrink-0" />
+        <div className="w-2/3 space-y-3">
+          <div className="h-4 bg-muted rounded w-1/3" />
+          <div className="h-6 bg-muted rounded w-2/3" />
+          <div className="flex gap-2">
+            <div className="h-5 bg-muted rounded w-16" />
+            <div className="h-5 bg-muted rounded w-20" />
+          </div>
+        </div>
+      </div>
+      <div className="space-y-2">
+        <div className="h-4 bg-muted rounded" />
+        <div className="h-4 bg-muted rounded w-5/6" />
+        <div className="h-4 bg-muted rounded w-4/6" />
+      </div>
+    </div>
+  );
+}
+
+export default function JobDetailPage({ params }: PageProps) {
+  return (
+    <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
+      <Link
+        href="/"
+        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+      >
+        <ArrowLeftIcon className="h-4 w-4" />
+        Back to listings
+      </Link>
+
+      <Suspense fallback={<JobDetailSkeleton />}>
+        {params.then(({ id }) => <JobDetailContent id={id} />)}
+      </Suspense>
     </div>
   );
 }
