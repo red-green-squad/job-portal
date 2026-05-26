@@ -51,6 +51,18 @@ function parseDescription(text: string) {
 
     if (!trimmed) continue;
 
+    // Key-value pair: "Label : Value" or "Label: Value" with content after the colon
+    const kvMatch = trimmed.match(/^([A-Za-z][^:]{1,40}?)\s*:\s*(.+)$/);
+    if (kvMatch) {
+      elements.push(
+        <p key={sectionKey++} className="text-sm">
+          <span className="font-bold underline">{kvMatch[1].trim()} : {kvMatch[2].trim()}</span>
+        </p>
+      );
+      continue;
+    }
+
+    // Section heading: line that ends with ":" and has no content after it
     if (/^[A-Z][^:]{0,60}:\s*$/.test(trimmed)) {
       elements.push(
         <h3
