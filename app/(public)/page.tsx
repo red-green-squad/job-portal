@@ -16,9 +16,13 @@ interface PageProps {
 }
 
 export default async function HomePage({ searchParams }: PageProps) {
-  const filters = await searchParams;
+  const { search, role, experience, page } = await searchParams;
+  const today = new Date().toISOString().split("T")[0]; // "YYYY-MM-DD" — kept outside 'use cache'
   const [{ jobRows, total, totalPages, currentPage }, allCategories] =
-    await Promise.all([getJobsPage(filters), getCategories()]);
+    await Promise.all([
+      getJobsPage({ search, role, experience, page, today }),
+      getCategories(),
+    ]);
 
   const roles = allCategories.filter((c) => c.type === CATEGORY_TYPES.ROLE);
   const experiences = allCategories.filter((c) => c.type === CATEGORY_TYPES.EXPERIENCE);
@@ -33,15 +37,15 @@ export default async function HomePage({ searchParams }: PageProps) {
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="flex-1">
           <Suspense>
-            <SearchInput defaultValue={filters.search} />
+            <SearchInput defaultValue={search} />
           </Suspense>
         </div>
         <Suspense>
           <JobFilters
             roles={roles}
             experiences={experiences}
-            selectedRole={filters.role}
-            selectedExperience={filters.experience}
+            selectedRole={role}
+            selectedExperience={experience}
           />
         </Suspense>
       </div>

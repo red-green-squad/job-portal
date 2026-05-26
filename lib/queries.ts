@@ -18,15 +18,16 @@ export async function getJobsPage(filters: {
   role?: string;
   experience?: string;
   page?: string;
+  today: string; // YYYY-MM-DD — provided by the caller so new Date() stays outside 'use cache'
 }) {
   "use cache";
-  cacheLife("minutes");
+  cacheLife("hours");
   cacheTag("jobs");
   console.log(`[cache miss] getJobsPage -- ${JSON.stringify(filters)}`);
 
   const { search, role, experience, page } = filters;
   const currentPage = Math.max(1, parseInt(page ?? "1", 10));
-  const today = new Date();
+  const today = new Date(filters.today);
 
   const roleAlias = alias(categories, "role");
   const expAlias = alias(categories, "experience");
@@ -117,7 +118,7 @@ export async function getJobsPage(filters: {
 
 export async function getJobById(id: string) {
   "use cache";
-  cacheLife("hours");
+  cacheLife("max"); // near-indefinite; invalidated explicitly via updateTag on mutations
   cacheTag("jobs");
   cacheTag(`job-${id}`);
   console.log(`[cache miss] getJobById -- ${id}`);
@@ -164,13 +165,5 @@ export async function getJobById(id: string) {
     .limit(1);
 
   if (!job || !job.isActive) return null;
-
-  const now = new Date();
-  if (job.lastDate !== null && new Date(job.lastDate) < now) return null;
-
-  const daysLeft = job.lastDate
-    ? Math.ceil((new Date(job.lastDate).getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
-    : null;
-
-  return { ...job, daysLeft };
+  return job; // date-sensitive checks (expiry, daysLeft) stay outside 'use cache'
 }

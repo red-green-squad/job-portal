@@ -15,29 +15,13 @@ import { formatDate } from "@/lib/date-utils";
 import { JobShareButtons } from "@/components/job-share-buttons";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { cacheLife, cacheTag } from "next/cache";
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-// Separate cached helper so generateMetadata doesn't re-run getJobById uncached
-async function getJobMeta(id: string) {
-  "use cache";
-  cacheLife("hours");
-  cacheTag("jobs");
-  cacheTag(`job-${id}`);
-  const job = await getJobById(id);
-  if (!job) return null;
-  return { title: job.title, company: job.company };
-}
-
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { id } = await params;
-  const meta = await getJobMeta(id);
-  if (!meta) return { title: "Job Not Found" };
-  return { title: `${meta.title} at ${meta.company} — Job Board` };
-}
+// Static — no DB call needed for the title tag
+export const metadata: Metadata = { title: "Job Details — Job Board" };
 
 function parseDescription(text: string) {
   const lines = text.split("\n");
@@ -110,17 +94,16 @@ function parseDescription(text: string) {
   return elements;
 }
 
-// Cached per job ID — output included in the static shell for instant client navigation
 async function JobDetailContent({ id }: { id: string }) {
-  "use cache";
-  cacheLife("hours");
-  cacheTag("jobs");
-  cacheTag(`job-${id}`);
-
   const job = await getJobById(id);
   if (!job) notFound();
 
-  const { daysLeft } = job;
+  // Date logic lives here (render time), not inside the 'use cache' function
+  const now = new Date();
+  if (job.lastDate !== null && new Date(job.lastDate) < now) notFound();
+  const daysLeft = job.lastDate
+    ? Math.ceil((new Date(job.lastDate).getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+    : null;
 
   return (
     <>
