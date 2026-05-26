@@ -1,7 +1,4 @@
-import { db } from "@/db";
-import { jobs, categories } from "@/db/schema";
-import { alias } from "drizzle-orm/sqlite-core";
-import { eq } from "drizzle-orm";
+import { getJobById } from "@/lib/queries";
 import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -22,17 +19,9 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-export async function generateMetadata({
-  params,
-}: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
-
-  const [job] = await db
-    .select({ title: jobs.title, company: jobs.company })
-    .from(jobs)
-    .where(eq(jobs.id, id))
-    .limit(1);
-
+  const job = await getJobById(id);
   if (!job) return { title: "Job Not Found" };
   return { title: `${job.title} at ${job.company} — Job Board` };
 }
@@ -41,46 +30,7 @@ export default async function JobDetailPage({ params }: PageProps) {
   const { id } = await params;
   const today = new Date();
 
-  const roleAlias = alias(categories, "role");
-  const expAlias = alias(categories, "experience");
-
-  const [job] = await db
-    .select({
-      id: jobs.id,
-      title: jobs.title,
-      company: jobs.company,
-      description: jobs.description,
-      companyLogo: jobs.companyLogo,
-      location: jobs.location,
-      salary: jobs.salary,
-      type: jobs.type,
-      applyUrl: jobs.applyUrl,
-      lastDate: jobs.lastDate,
-      isActive: jobs.isActive,
-      createdAt: jobs.createdAt,
-      updatedAt: jobs.updatedAt,
-      roleId: jobs.roleId,
-      experienceId: jobs.experienceId,
-      role: {
-        id: roleAlias.id,
-        type: roleAlias.type,
-        label: roleAlias.label,
-        value: roleAlias.value,
-        createdAt: roleAlias.createdAt,
-      },
-      experience: {
-        id: expAlias.id,
-        type: expAlias.type,
-        label: expAlias.label,
-        value: expAlias.value,
-        createdAt: expAlias.createdAt,
-      },
-    })
-    .from(jobs)
-    .leftJoin(roleAlias, eq(jobs.roleId, roleAlias.id))
-    .leftJoin(expAlias, eq(jobs.experienceId, expAlias.id))
-    .where(eq(jobs.id, id))
-    .limit(1);
+  const job = await getJobById(id);
 
   if (
     !job ||

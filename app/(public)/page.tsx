@@ -1,8 +1,5 @@
-import { db } from "@/db";
-import { jobs, categories } from "@/db/schema";
-import { and, desc, eq, gte, like, isNull, or, sql, count } from "drizzle-orm";
-import { alias } from "drizzle-orm/sqlite-core";
-import { PAGE_SIZE, CATEGORY_TYPES } from "@/lib/constants";
+import { CATEGORY_TYPES } from "@/lib/constants";
+import { getJobsPage, getCategories } from "@/lib/queries";
 import { JobCard } from "@/components/job-card";
 import { SearchInput } from "@/components/search-input";
 import { JobFilters } from "@/components/job-filters";
@@ -19,99 +16,10 @@ interface PageProps {
 }
 
 export default async function HomePage({ searchParams }: PageProps) {
-  const { search, role, experience, page } = await searchParams;
-  const currentPage = Math.max(1, parseInt(page ?? "1", 10));
-  const today = new Date();
+  const filters = await searchParams;
+  const [{ jobRows, total, totalPages, currentPage }, allCategories] =
+    await Promise.all([getJobsPage(filters), getCategories()]);
 
-  const roleAlias = alias(categories, "role");
-  const expAlias = alias(categories, "experience");
-
-  const whereConditions = [
-    eq(jobs.isActive, true),
-    or(isNull(jobs.lastDate), gte(jobs.lastDate, today))!,
-  ];
-
-  if (search) {
-    whereConditions.push(
-      or(
-        like(jobs.title, `%${search}%`),
-        like(jobs.company, `%${search}%`),
-        like(jobs.description, `%${search}%`)
-      )!
-    );
-  }
-
-  if (role) {
-    const [roleRow] = await db
-      .select({ id: categories.id })
-      .from(categories)
-      .where(and(eq(categories.type, CATEGORY_TYPES.ROLE), eq(categories.value, role)))
-      .limit(1);
-    if (roleRow) whereConditions.push(eq(jobs.roleId, roleRow.id));
-    else whereConditions.push(sql`false`);
-  }
-
-  if (experience) {
-    const [expRow] = await db
-      .select({ id: categories.id })
-      .from(categories)
-      .where(and(eq(categories.type, CATEGORY_TYPES.EXPERIENCE), eq(categories.value, experience)))
-      .limit(1);
-    if (expRow) whereConditions.push(eq(jobs.experienceId, expRow.id));
-    else whereConditions.push(sql`false`);
-  }
-
-  const where = and(...whereConditions);
-
-  const [{ total }] = await db
-    .select({ total: count() })
-    .from(jobs)
-    .where(where);
-
-  const totalPages = Math.ceil(total / PAGE_SIZE);
-  const offset = (currentPage - 1) * PAGE_SIZE;
-
-  const jobRows = await db
-    .select({
-      id: jobs.id,
-      title: jobs.title,
-      company: jobs.company,
-      description: jobs.description,
-      roleId: jobs.roleId,
-      experienceId: jobs.experienceId,
-      location: jobs.location,
-      salary: jobs.salary,
-      type: jobs.type,
-      applyUrl: jobs.applyUrl,
-      lastDate: jobs.lastDate,
-      companyLogo: jobs.companyLogo,
-      isActive: jobs.isActive,
-      createdAt: jobs.createdAt,
-      updatedAt: jobs.updatedAt,
-      role: {
-        id: roleAlias.id,
-        type: roleAlias.type,
-        label: roleAlias.label,
-        value: roleAlias.value,
-        createdAt: roleAlias.createdAt,
-      },
-      experience: {
-        id: expAlias.id,
-        type: expAlias.type,
-        label: expAlias.label,
-        value: expAlias.value,
-        createdAt: expAlias.createdAt,
-      },
-    })
-    .from(jobs)
-    .leftJoin(roleAlias, eq(jobs.roleId, roleAlias.id))
-    .leftJoin(expAlias, eq(jobs.experienceId, expAlias.id))
-    .where(where)
-    .orderBy(desc(jobs.createdAt))
-    .limit(PAGE_SIZE)
-    .offset(offset);
-
-  const allCategories = await db.select().from(categories).orderBy(categories.label);
   const roles = allCategories.filter((c) => c.type === CATEGORY_TYPES.ROLE);
   const experiences = allCategories.filter((c) => c.type === CATEGORY_TYPES.EXPERIENCE);
 
@@ -125,15 +33,15 @@ export default async function HomePage({ searchParams }: PageProps) {
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="flex-1">
           <Suspense>
-            <SearchInput defaultValue={search} />
+            <SearchInput defaultValue={filters.search} />
           </Suspense>
         </div>
         <Suspense>
           <JobFilters
             roles={roles}
             experiences={experiences}
-            selectedRole={role}
-            selectedExperience={experience}
+            selectedRole={filters.role}
+            selectedExperience={filters.experience}
           />
         </Suspense>
       </div>

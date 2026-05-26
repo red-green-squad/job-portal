@@ -4,7 +4,7 @@ import { db } from "@/db";
 import { jobs } from "@/db/schema";
 import { jobSchema } from "@/lib/validations";
 import { eq } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
 type ActionResult = { error: string } | { success: true };
@@ -26,6 +26,7 @@ export async function createJob(data: unknown): Promise<ActionResult> {
     companyLogo: companyLogo || null,
   });
 
+  updateTag("jobs");
   revalidatePath("/");
   revalidatePath("/admin");
   redirect("/admin");
@@ -52,6 +53,8 @@ export async function updateJob(id: string, data: unknown): Promise<ActionResult
     })
     .where(eq(jobs.id, id));
 
+  updateTag("jobs");
+  updateTag(`job-${id}`);
   revalidatePath("/");
   revalidatePath("/admin");
   redirect("/admin");
@@ -66,6 +69,8 @@ export async function toggleJobActive(id: string): Promise<ActionResult> {
     .set({ isActive: !job.isActive, updatedAt: new Date() })
     .where(eq(jobs.id, id));
 
+  updateTag("jobs");
+  updateTag(`job-${id}`);
   revalidatePath("/");
   revalidatePath("/admin");
   return { success: true };
@@ -73,6 +78,8 @@ export async function toggleJobActive(id: string): Promise<ActionResult> {
 
 export async function deleteJob(id: string): Promise<ActionResult> {
   await db.delete(jobs).where(eq(jobs.id, id));
+  updateTag("jobs");
+  updateTag(`job-${id}`);
   revalidatePath("/");
   revalidatePath("/admin");
   return { success: true };

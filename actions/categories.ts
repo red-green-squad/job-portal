@@ -4,7 +4,7 @@ import { db } from "@/db";
 import { categories, jobs } from "@/db/schema";
 import { categorySchema } from "@/lib/validations";
 import { eq, or } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 
 type ActionResult = { error: string } | { success: true };
 
@@ -15,6 +15,7 @@ export async function createCategory(data: unknown): Promise<ActionResult> {
   }
 
   await db.insert(categories).values(parsed.data);
+  updateTag("categories");
   revalidatePath("/admin/categories");
   return { success: true };
 }
@@ -26,6 +27,7 @@ export async function updateCategory(id: string, data: unknown): Promise<ActionR
   }
 
   await db.update(categories).set(parsed.data).where(eq(categories.id, id));
+  updateTag("categories");
   revalidatePath("/admin/categories");
   revalidatePath("/");
   return { success: true };
@@ -43,6 +45,7 @@ export async function deleteCategory(id: string): Promise<ActionResult> {
   }
 
   await db.delete(categories).where(eq(categories.id, id));
+  updateTag("categories");
   revalidatePath("/admin/categories");
   return { success: true };
 }
