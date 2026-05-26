@@ -17,7 +17,7 @@ export function JobCard({ job }: { job: JobWithRelations }) {
   }, [job.lastDate]);
 
   return (
-    <Link href={`/jobs/${job.id}`}>
+    <Link href={`/jobs/${job.id}`} prefetch={false}>
       <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
         <CardHeader className="pb-2">
           <div className="flex items-start gap-3">
