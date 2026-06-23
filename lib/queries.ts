@@ -139,7 +139,6 @@ export async function getJobsPage(filters: JobsPageFilters) {
 async function fetchJobById(id: string) {
   "use cache";
   cacheLife({ stale: DAY, revalidate: DAY, expire: DAY * 7 });
-  cacheTag("jobs");
   cacheTag(`job-${id}`);
   console.log(`[cache:miss] getJobById id=${id}`);
 

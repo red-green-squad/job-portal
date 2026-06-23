@@ -1,9 +1,10 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { getJobById } from "@/lib/queries";
 import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   MapPinIcon,
   CalendarIcon,
@@ -15,6 +16,7 @@ import { formatDate } from "@/lib/date-utils";
 import { JobShareButtons } from "@/components/job-share-buttons";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { GoogleAdSenseBanner, GoogleAdManagerSlot } from "@/components/google-ads";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -93,15 +95,35 @@ function parseDescription(text: string) {
   return elements;
 }
 
-export default async function JobDetailPage({ params }: PageProps) {
-  const { id } = await params;
+function JobDetailSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div className="rounded-xl border bg-muted/40 px-5 py-5 flex items-stretch gap-4">
+        <Skeleton className="w-1/3 rounded-lg" />
+        <div className="w-2/3 space-y-3">
+          <Skeleton className="h-4 w-24" />
+          <Skeleton className="h-6 w-48" />
+          <div className="flex gap-2">
+            <Skeleton className="h-5 w-16 rounded-full" />
+            <Skeleton className="h-5 w-20 rounded-full" />
+          </div>
+          <Skeleton className="h-4 w-32" />
+        </div>
+      </div>
+      <Skeleton className="h-px w-full" />
+      <div className="space-y-3">
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-5/6" />
+        <Skeleton className="h-4 w-4/6" />
+      </div>
+    </div>
+  );
+}
 
-  // getJobById has 'use cache' — DB is called only on first visit or after
-  // admin mutation invalidates via updateTag("job-${id}")
+async function JobContent({ id }: { id: string }) {
   const job = await getJobById(id);
   if (!job) notFound();
 
-  // Date logic at render time (not inside the cached function)
   const now = new Date();
   if (job.lastDate !== null && new Date(job.lastDate) < now) notFound();
   const daysLeft = job.lastDate
@@ -109,15 +131,7 @@ export default async function JobDetailPage({ params }: PageProps) {
     : null;
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
-      <Link
-        href="/"
-        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeftIcon className="h-4 w-4" />
-        Back to listings
-      </Link>
-
+    <>
       <div className="rounded-xl border bg-muted/40 px-5 py-5 flex items-stretch gap-4">
         {job.companyLogo ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -188,6 +202,13 @@ export default async function JobDetailPage({ params }: PageProps) {
         {parseDescription(job.description)}
       </div>
 
+      {/* Google AdSense Banner inside job details */}
+      <GoogleAdSenseBanner 
+        slot="job_detail_middle" 
+        format="auto" 
+        className="max-h-[150px]"
+      />
+
       {job.applyUrl && (
         <>
           <Separator />
@@ -208,6 +229,31 @@ export default async function JobDetailPage({ params }: PageProps) {
 
       <Separator />
       <JobShareButtons title={job.title} company={job.company} />
+
+      {/* Google Ad Manager Slot at bottom of page */}
+      <GoogleAdManagerSlot 
+        adUnitPath="/1234567/job_board_detail_bottom" 
+        sizes={[300, 250]} 
+        className="mx-auto"
+      />
+    </>
+  );
+}
+
+export default function JobDetailPage({ params }: PageProps) {
+  return (
+    <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
+      <Link
+        href="/"
+        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+      >
+        <ArrowLeftIcon className="h-4 w-4" />
+        Back to listings
+      </Link>
+
+      <Suspense fallback={<JobDetailSkeleton />}>
+        {params.then(({ id }) => <JobContent id={id} />)}
+      </Suspense>
     </div>
   );
 }

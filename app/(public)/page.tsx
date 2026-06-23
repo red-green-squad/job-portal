@@ -5,6 +5,7 @@ import { SearchInput } from "@/components/search-input";
 import { JobFilters } from "@/components/job-filters";
 import { JobsPagination } from "@/components/jobs-pagination";
 import { Suspense } from "react";
+import { GoogleAdSenseBanner, GoogleAdManagerSlot } from "@/components/google-ads";
 
 interface PageProps {
   searchParams: Promise<{
@@ -50,6 +51,13 @@ export default async function HomePage({ searchParams }: PageProps) {
         </Suspense>
       </div>
 
+      {/* Google AdSense Banner below search/filters */}
+      <GoogleAdSenseBanner 
+        slot="home_top_banner" 
+        format="horizontal" 
+        className="max-h-[120px]"
+      />
+
       {jobRows.length === 0 ? (
         <div className="text-center py-16 text-muted-foreground">
           <p className="text-lg">No jobs found matching your criteria.</p>
@@ -62,6 +70,13 @@ export default async function HomePage({ searchParams }: PageProps) {
           ))}
         </div>
       )}
+
+      {/* Google Ad Manager Slot above pagination */}
+      <GoogleAdManagerSlot 
+        adUnitPath="/1234567/job_board_home_bottom" 
+        sizes={[[728, 90], [970, 90]]} 
+        className="mx-auto"
+      />
 
       <Suspense>
         <JobsPagination currentPage={currentPage} totalPages={totalPages} />

@@ -1,0 +1,3 @@
+# Google AdSense Authorized Seller Verification
+# INSTRUCTIONS: Replace "pub-0000000000000000" with your actual publisher ID (found in AdSense > Account > Settings > Account information).
+google.com, pub-3460315841449449, DIRECT, f08c47fec0942fa0
