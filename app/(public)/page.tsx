@@ -5,7 +5,7 @@ import { SearchInput } from "@/components/search-input";
 import { JobFilters } from "@/components/job-filters";
 import { JobsPagination } from "@/components/jobs-pagination";
 import { Suspense } from "react";
-import { GoogleAdSenseBanner, GoogleAdManagerSlot } from "@/components/google-ads";
+import { GoogleAdSenseBanner } from "@/components/google-ads";
 
 interface PageProps {
   searchParams: Promise<{
@@ -71,11 +71,11 @@ export default async function HomePage({ searchParams }: PageProps) {
         </div>
       )}
 
-      {/* Google Ad Manager Slot above pagination */}
-      <GoogleAdManagerSlot 
-        adUnitPath="/1234567/job_board_home_bottom" 
-        sizes={[[728, 90], [970, 90]]} 
-        className="mx-auto"
+      {/* Google AdSense Banner above pagination */}
+      <GoogleAdSenseBanner
+        slot="home_bottom_banner"
+        format="horizontal"
+        className="max-h-[120px]"
       />
 
       <Suspense>

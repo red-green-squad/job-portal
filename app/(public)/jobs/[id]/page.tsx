@@ -16,7 +16,7 @@ import { formatDate } from "@/lib/date-utils";
 import { JobShareButtons } from "@/components/job-share-buttons";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { GoogleAdSenseBanner, GoogleAdManagerSlot } from "@/components/google-ads";
+import { GoogleAdSenseBanner } from "@/components/google-ads";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -230,11 +230,11 @@ async function JobContent({ id }: { id: string }) {
       <Separator />
       <JobShareButtons title={job.title} company={job.company} />
 
-      {/* Google Ad Manager Slot at bottom of page */}
-      <GoogleAdManagerSlot 
-        adUnitPath="/1234567/job_board_detail_bottom" 
-        sizes={[300, 250]} 
-        className="mx-auto"
+      {/* Google AdSense Banner at bottom of job content */}
+      <GoogleAdSenseBanner
+        slot="job_detail_bottom"
+        format="auto"
+        className="max-h-[150px]"
       />
     </>
   );

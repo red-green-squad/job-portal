@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
-import { GoogleAdSenseScript, GoogleAdManagerScript } from "@/components/google-ads";
+import { GoogleAdSenseScript } from "@/components/google-ads";
 import "./globals.css";
 
 const plusJakartaSans = Plus_Jakarta_Sans({ variable: "--font-sans", subsets: ["latin"] });
@@ -15,9 +15,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${plusJakartaSans.variable} h-full antialiased dark`}>
       <body className="min-h-full flex flex-col bg-background text-foreground">
-        {/* Google Ads Script Integration */}
+        {/* Google AdSense Script */}
         <GoogleAdSenseScript />
-        <GoogleAdManagerScript />
 
         {children}
         <Toaster richColors position="top-right" />
