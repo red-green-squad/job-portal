@@ -60,7 +60,7 @@ export function GoogleAdManagerSlot({
         });
       }
     };
-  }, [pathname, adUnitPath, uniqueId, sizesString]);
+  }, [pathname, adUnitPath, uniqueId, sizesString, isDev, showPlaceholderInDev]);
 
   if (isDev && showPlaceholderInDev) {
     const formattedSizes = Array.isArray(sizes)

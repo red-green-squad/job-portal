@@ -36,7 +36,7 @@ export function GoogleAdSenseBanner({
     } catch (error) {
       console.warn("Google AdSense execution failed or was blocked:", error);
     }
-  }, [pathname, activeClientId, slot]);
+  }, [pathname, activeClientId, slot, isDev, showPlaceholderInDev]);
 
   if (!activeClientId) {
     if (showPlaceholderInDev) {

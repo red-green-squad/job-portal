@@ -242,18 +242,41 @@ async function JobContent({ id }: { id: string }) {
 
 export default function JobDetailPage({ params }: PageProps) {
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
-      <Link
-        href="/"
-        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeftIcon className="h-4 w-4" />
-        Back to listings
-      </Link>
+    <div className="max-w-7xl mx-auto px-4 py-8 flex flex-col lg:flex-row gap-8 justify-center items-start">
+      {/* Left rail ad - sticky on large screens */}
+      <aside className="hidden lg:block w-[160px] shrink-0 sticky top-20">
+        <GoogleAdSenseBanner
+          slot="job_detail_left_rail"
+          format="vertical"
+          style={{ display: "block", width: "160px", height: "600px" }}
+          className="min-h-[600px]"
+        />
+      </aside>
 
-      <Suspense fallback={<JobDetailSkeleton />}>
-        {params.then(({ id }) => <JobContent id={id} />)}
-      </Suspense>
+      {/* Main detail content column */}
+      <div className="max-w-3xl w-full flex-1 space-y-6">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-2"
+        >
+          <ArrowLeftIcon className="h-4 w-4" />
+          Back to listings
+        </Link>
+
+        <Suspense fallback={<JobDetailSkeleton />}>
+          {params.then(({ id }) => <JobContent id={id} />)}
+        </Suspense>
+      </div>
+
+      {/* Right rail ad - sticky on large screens */}
+      <aside className="hidden lg:block w-[160px] shrink-0 sticky top-20">
+        <GoogleAdSenseBanner
+          slot="job_detail_right_rail"
+          format="vertical"
+          style={{ display: "block", width: "160px", height: "600px" }}
+          className="min-h-[600px]"
+        />
+      </aside>
     </div>
   );
 }
