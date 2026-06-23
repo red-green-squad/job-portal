@@ -1,14 +1,13 @@
 "use client";
 
-import { useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { useEffect, useRef } from "react";
 
 interface GoogleAdSenseBannerProps {
   clientId?: string;
   slot: string;
   format?: "auto" | "fluid" | "autorelaxed" | "rectangle" | "vertical" | "horizontal";
-  layout?: string;       // e.g. "in-article"
-  layoutKey?: string;    // e.g. "-ef+6k-30-ac+ty" (for in-feed fluid units)
+  layout?: string;
+  layoutKey?: string;
   responsive?: "true" | "false";
   style?: React.CSSProperties;
   className?: string;
@@ -26,21 +25,24 @@ export function GoogleAdSenseBanner({
   className = "",
   showPlaceholderInDev = true,
 }: GoogleAdSenseBannerProps) {
-  const pathname = usePathname();
+  const insRef = useRef<HTMLModElement>(null);
   const activeClientId = clientId || process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
   const isDev = process.env.NODE_ENV === "development";
 
   useEffect(() => {
     if (!activeClientId) return;
     if (isDev && showPlaceholderInDev) return;
+    // Skip if this specific <ins> element was already processed by AdSense
+    if (insRef.current?.dataset.adsbygoogleStatus === "done") return;
 
     try {
-      // Safely initialize the global adsbygoogle array and push
       ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
     } catch (error) {
-      console.warn("Google AdSense execution failed or was blocked:", error);
+      console.warn("Google AdSense push failed:", error);
     }
-  }, [pathname, activeClientId, slot, isDev, showPlaceholderInDev]);
+  // Only run on mount — the component unmounts/remounts on navigation
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (!activeClientId) {
     if (showPlaceholderInDev) {
@@ -56,7 +58,6 @@ export function GoogleAdSenseBanner({
     return null;
   }
 
-  // Visual placeholder for development and layout verification
   if (isDev && showPlaceholderInDev) {
     return (
       <div
@@ -76,8 +77,9 @@ export function GoogleAdSenseBanner({
   }
 
   return (
-    <div className={`adsense-banner-container overflow-hidden my-4 ${className}`} style={{ minHeight: "100px" }}>
+    <div className={`adsense-banner-container overflow-hidden my-4 ${className}`}>
       <ins
+        ref={insRef}
         className="adsbygoogle"
         style={style}
         data-ad-client={activeClientId}

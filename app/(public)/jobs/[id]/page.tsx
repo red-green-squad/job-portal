@@ -250,8 +250,7 @@ export default function JobDetailPage({ params }: PageProps) {
         <GoogleAdSenseBanner
           slot="3654998492"
           format="auto"
-          style={{ display: "block", width: "160px", height: "600px" }}
-          className="min-h-[600px]"
+          style={{ display: "block", width: "160px" }}
         />
       </aside>
 
@@ -273,10 +272,9 @@ export default function JobDetailPage({ params }: PageProps) {
       {/* Right rail ad - sticky on large screens */}
       <aside className="hidden lg:block w-[160px] shrink-0 sticky top-20">
         <GoogleAdSenseBanner
-          slot="3654998492"
-          format="auto"
-          style={{ display: "block", width: "160px", height: "600px" }}
-          className="min-h-[600px]"
+          slot="9454120084"
+          format="autorelaxed"
+          style={{ display: "block", width: "160px" }}
         />
       </aside>
     </div>
