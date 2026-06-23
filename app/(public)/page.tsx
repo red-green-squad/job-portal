@@ -51,10 +51,10 @@ export default async function HomePage({ searchParams }: PageProps) {
         </Suspense>
       </div>
 
-      {/* Google AdSense Banner below search/filters */}
-      <GoogleAdSenseBanner 
-        slot="home_top_banner" 
-        format="horizontal" 
+      {/* Google AdSense Banner — Top (auto/responsive) */}
+      <GoogleAdSenseBanner
+        slot="3654998492"
+        format="auto"
         className="max-h-[120px]"
       />
 
@@ -71,11 +71,10 @@ export default async function HomePage({ searchParams }: PageProps) {
         </div>
       )}
 
-      {/* Google AdSense Banner above pagination */}
+      {/* Google AdSense Banner — Bottom (autorelaxed/in-feed) */}
       <GoogleAdSenseBanner
-        slot="home_bottom_banner"
-        format="horizontal"
-        className="max-h-[120px]"
+        slot="9454120084"
+        format="autorelaxed"
       />
 
       <Suspense>

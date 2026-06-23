@@ -202,11 +202,12 @@ async function JobContent({ id }: { id: string }) {
         {parseDescription(job.description)}
       </div>
 
-      {/* Google AdSense Banner inside job details */}
-      <GoogleAdSenseBanner 
-        slot="job_detail_middle" 
-        format="auto" 
-        className="max-h-[150px]"
+      {/* Google AdSense Banner — In-article (middle of content) */}
+      <GoogleAdSenseBanner
+        slot="9837263462"
+        format="fluid"
+        layout="in-article"
+        style={{ display: "block", textAlign: "center" }}
       />
 
       {job.applyUrl && (
@@ -230,11 +231,12 @@ async function JobContent({ id }: { id: string }) {
       <Separator />
       <JobShareButtons title={job.title} company={job.company} />
 
-      {/* Google AdSense Banner at bottom of job content */}
+      {/* Google AdSense Banner — Bottom (fluid in-feed) */}
       <GoogleAdSenseBanner
-        slot="job_detail_bottom"
-        format="auto"
-        className="max-h-[150px]"
+        slot="4776508472"
+        format="fluid"
+        layoutKey="-ef+6k-30-ac+ty"
+        style={{ display: "block" }}
       />
     </>
   );
@@ -246,8 +248,8 @@ export default function JobDetailPage({ params }: PageProps) {
       {/* Left rail ad - sticky on large screens */}
       <aside className="hidden lg:block w-[160px] shrink-0 sticky top-20">
         <GoogleAdSenseBanner
-          slot="job_detail_left_rail"
-          format="vertical"
+          slot="3654998492"
+          format="auto"
           style={{ display: "block", width: "160px", height: "600px" }}
           className="min-h-[600px]"
         />
@@ -271,8 +273,8 @@ export default function JobDetailPage({ params }: PageProps) {
       {/* Right rail ad - sticky on large screens */}
       <aside className="hidden lg:block w-[160px] shrink-0 sticky top-20">
         <GoogleAdSenseBanner
-          slot="job_detail_right_rail"
-          format="vertical"
+          slot="3654998492"
+          format="auto"
           style={{ display: "block", width: "160px", height: "600px" }}
           className="min-h-[600px]"
         />

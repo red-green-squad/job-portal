@@ -6,7 +6,9 @@ import { usePathname } from "next/navigation";
 interface GoogleAdSenseBannerProps {
   clientId?: string;
   slot: string;
-  format?: "auto" | "fluid" | "rectangle" | "vertical" | "horizontal";
+  format?: "auto" | "fluid" | "autorelaxed" | "rectangle" | "vertical" | "horizontal";
+  layout?: string;       // e.g. "in-article"
+  layoutKey?: string;    // e.g. "-ef+6k-30-ac+ty" (for in-feed fluid units)
   responsive?: "true" | "false";
   style?: React.CSSProperties;
   className?: string;
@@ -17,6 +19,8 @@ export function GoogleAdSenseBanner({
   clientId,
   slot,
   format = "auto",
+  layout,
+  layoutKey,
   responsive = "true",
   style = { display: "block" },
   className = "",
@@ -65,7 +69,7 @@ export function GoogleAdSenseBanner({
         <span className="font-semibold text-foreground">Slot ID: {slot}</span>
         <span className="text-xs text-muted-foreground mt-1">Client ID: {activeClientId}</span>
         <span className="text-xs text-muted-foreground">
-          Format: {format} | Responsive: {responsive}
+          Format: {format}{layout ? ` | Layout: ${layout}` : ""}{layoutKey ? ` | Key: ${layoutKey}` : ""}
         </span>
       </div>
     );
@@ -79,6 +83,8 @@ export function GoogleAdSenseBanner({
         data-ad-client={activeClientId}
         data-ad-slot={slot}
         data-ad-format={format}
+        {...(layout ? { "data-ad-layout": layout } : {})}
+        {...(layoutKey ? { "data-ad-layout-key": layoutKey } : {})}
         data-full-width-responsive={responsive}
       />
     </div>
