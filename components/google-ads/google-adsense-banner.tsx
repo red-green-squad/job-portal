@@ -26,6 +26,7 @@ export function GoogleAdSenseBanner({
   showPlaceholderInDev = true,
 }: GoogleAdSenseBannerProps) {
   const insRef = useRef<HTMLModElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const activeClientId = clientId || process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
   const isDev = process.env.NODE_ENV === "development";
 
@@ -41,6 +42,23 @@ export function GoogleAdSenseBanner({
       console.warn("Google AdSense push failed:", error);
     }
   // Only run on mount — the component unmounts/remounts on navigation
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Collapse the container when AdSense marks the slot as unfilled
+  useEffect(() => {
+    const ins = insRef.current;
+    const container = containerRef.current;
+    if (!ins || !container || (isDev && showPlaceholderInDev)) return;
+
+    const observer = new MutationObserver(() => {
+      if (ins.dataset.adStatus === "unfilled") {
+        container.style.display = "none";
+      }
+    });
+
+    observer.observe(ins, { attributes: true, attributeFilter: ["data-ad-status"] });
+    return () => observer.disconnect();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -77,7 +95,7 @@ export function GoogleAdSenseBanner({
   }
 
   return (
-    <div className={`adsense-banner-container overflow-hidden my-4 ${className}`}>
+    <div ref={containerRef} className={`adsense-banner-container overflow-hidden my-4 ${className}`}>
       <ins
         ref={insRef}
         className="adsbygoogle"

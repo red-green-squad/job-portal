@@ -10,7 +10,7 @@ const DAY = 60 * 60 * 24;
 // ─── getCategories ────────────────────────────────────────────────────────────
 
 async function fetchCategories() {
-  "use cache";
+  "use cache: remote";
   cacheLife({ stale: DAY, revalidate: DAY, expire: DAY * 7 });
   cacheTag("categories");
   console.log("[cache:miss] getCategories");
@@ -33,7 +33,7 @@ type JobsPageFilters = {
 };
 
 async function fetchJobsPage(filters: JobsPageFilters) {
-  "use cache";
+  "use cache: remote";
   cacheLife({ stale: DAY, revalidate: DAY, expire: DAY * 7 });
   cacheTag("jobs");
   console.log(`[cache:miss] getJobsPage filters=${JSON.stringify(filters)}`);
@@ -137,7 +137,7 @@ export async function getJobsPage(filters: JobsPageFilters) {
 // ─── getJobById ───────────────────────────────────────────────────────────────
 
 async function fetchJobById(id: string) {
-  "use cache";
+  "use cache: remote";
   cacheLife({ stale: DAY, revalidate: DAY, expire: DAY * 7 });
   cacheTag(`job-${id}`);
   console.log(`[cache:miss] getJobById id=${id}`);

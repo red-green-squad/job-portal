@@ -207,7 +207,7 @@ async function JobContent({ id }: { id: string }) {
         slot="9837263462"
         format="fluid"
         layout="in-article"
-        style={{ display: "block", textAlign: "center" }}
+        style={{ display: "block" }}
       />
 
       {job.applyUrl && (
